@@ -13,14 +13,13 @@ def import_events(client, file):
     print "Importing electric load data..."
 
     # Skip header line
-    csvFile.next()
+    header = csvFile.next()
 
     for idx, row in enumerate(csvFile):
         print "Importing data from row ",idx
         for i in xrange(1,len(row)):
             if (row[i] != ''):
-                # Circuits are zero-indexed
-                circuitId = i-1
+                circuitId = header[i]
                 time = row[0]
                 energy = row[i]
 
