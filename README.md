@@ -20,6 +20,15 @@ By default, the engine requires the following events to be collected:
 **Output PredictedResult**
 * Energy Consumption
 
+**Dataset Format**
+
+Your data should be in csv format, with the following constraints:
+* Row 0 of the dataset must contain integers representing Circuit IDs. <br>
+* Column 0 of the dataset must contain integers representing Time. <br>
+* All other rows and columns should contain integers or doubles representing Energy data. Empty cells are ignored.
+
+The file `data/sample_data.csv` is included for reference.
+
 ### 1. Run PredictionIO
 
 If PredictionIO is not installed, install it [here](http://docs.prediction.io/install/).
@@ -49,7 +58,7 @@ $ pio app new [YourAppName]
 
 The console output should include the App Name, **App ID**, and **Access Key**. You will need the App ID and Access Key in future steps. You can view your applications by entering `pio app list`.
 
-### 4.Import Data to the Event Server
+### 4. Import Data to the Event Server
 
 Install the PredictionIO Python SDK:
 ```
@@ -62,7 +71,7 @@ $ easy_install predictionio
 
 From the root directory of your engine, run:
 ```
-$ python data/import_eventserver.py --access_key [YourAccessKeyFromStep3]
+$ python data/import_eventserver.py --access_key [YourAccessKeyFromStep3] --file [/path/to/your/data]
 ```
 
 ### 5. Build, Train, and Deploy the Engine
@@ -84,12 +93,12 @@ Build the engine.
 $ pio build
 ```
 
-Train the engine. This will take several minutes.
+Train the engine. This may take several minutes.
 ```
 $ pio train
 ```
 
-Deploy the engine. This will take several minutes.
+Deploy the engine. This may take several minutes.
 ```
 $ pio deploy
 ```
