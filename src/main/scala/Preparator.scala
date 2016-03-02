@@ -10,10 +10,10 @@ class Preparator
   extends PPreparator[TrainingData, PreparedData] {
 
   def prepare(sc: SparkContext, trainingData: TrainingData): PreparedData = {
-    new PreparedData(electricalLoads = trainingData.electricalLoads)
+    new PreparedData(jobEntities = trainingData.jobEntities)
   }
 }
 
 class PreparedData(
-  val electricalLoads: RDD[ElectricalLoad]
+  val electricalLoads: RDD[JobEntity]
 ) extends Serializable

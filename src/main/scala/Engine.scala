@@ -4,12 +4,11 @@ import io.prediction.controller.IEngineFactory
 import io.prediction.controller.Engine
 
 case class Query(
-  circuit_id: Int,
-  time: String
+  jobTitle: String,
 ) extends Serializable
 
 case class PredictedResult(
-  energy: Double
+  category: String
 ) extends Serializable
 
 object RecommendationEngine extends IEngineFactory {

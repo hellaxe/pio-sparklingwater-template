@@ -25,16 +25,16 @@ class Algorithm(val ap: AlgorithmParams)
   @transient lazy val logger = Logger[this.type]
 
   def train(sc: SparkContext, data: PreparedData): Model = {
-    val electricalLoads : RDD[ElectricalLoad] = data.electricalLoads
+    val jobEntities : RDD[JobEntity] = data.jobEntities
 
     val h2oContext = new H2OContext(sc).start()
     import h2oContext._
 
-    val result = createDataFrame(data.electricalLoads)
+    val result = createDataFrame(data.jobEntities)
 
     val dlParams: DeepLearningParameters = new DeepLearningParameters()
-    dlParams._train = result('circuitId, 'time, 'energy)
-    dlParams._response_column = 'energy
+    dlParams._train = result('jobTitle, 'category)
+    dlParams._response_column = 'category
     dlParams._epochs = ap.epochs
 
     val dl: DeepLearning = new DeepLearning(dlParams)
@@ -49,18 +49,18 @@ class Algorithm(val ap: AlgorithmParams)
   def predict(model: Model, query: Query): PredictedResult = {
     import model.h2oContext._
   
-    val inputQuery = Seq(Input(query.circuit_id,query.time.toInt))
+    val inputQuery = Seq(Input(query.jobTitle))
     val inputDF = createDataFrame(model.sc.parallelize(inputQuery))
     val predictionH2OFrame = model.dlModel.score(inputDF)('predict)
     val predictionsFromModel =
       toRDD[DoubleHolder](predictionH2OFrame).
       map ( _.result.getOrElse(Double.NaN) ).collect
     
-    new PredictedResult(energy = predictionsFromModel(0))
+    new PredictedResult(category = predictionsFromModel(0))
   }
 }
 
-case class Input(circuitId: Int, time: Int)
+case class Input(jobTitle: String)
 
 class Model (
   val h2oContext: H2OContext,

@@ -28,35 +28,33 @@ class DataSource(val dsp: DataSourceParams)
     val eventsDb = Storage.getPEvents()
     val eventsRDD: RDD[Event] = eventsDb.find(
       appId = dsp.appId,
-      entityType = Some("electrical_load"),
-      eventNames = Some(List("predict_energy")))(sc)
+      entityType = Some("jobs"),
+      eventNames = Some(List("$set")))(sc)
 
-    val electricalLoadRDD: RDD[ElectricalLoad] = eventsRDD.map { event =>
-      val electricalLoad: ElectricalLoad = 
+    val jobEntityRDD: RDD[JobEntity] = eventsRDD.map { event =>
+      val jobEntity: JobEntity = 
         event.event match {
-          case "predict_energy" => 
-            ElectricalLoad(
-                circuitId = event.properties.get[String]("circuitId").toInt,
-                time = event.properties.get[String]("time").toInt,
-                energy = event.properties.get[String]("energy").toDouble
+          case "$set" => 
+            JobEntity(
+                jobTitle = event.properties.get[String]("job_title"),
+                category = event.properties.get[String]("category")
               )
           case _ => throw new Exception(s"Unexpected event ${event} is read.")
         }
-        electricalLoad
+        jobEntity
     }.cache()
 
-    new TrainingData(electricalLoadRDD)
+    new TrainingData(jobEntityRDD)
   }
 }
 
-case class ElectricalLoad(
-  circuitId: Int,
-  time: Int,
-  energy: Double
+case class JobEntity(
+  jobTitle: String,
+  category: String,
 )
 
 class TrainingData(
-  val electricalLoads: RDD[ElectricalLoad]
+  val jobEntities: RDD[JobEntity]
 ) extends Serializable /* {
   override def toString = {
     s"electricalLoads: [${electricalLoads.count()}] (${electricalLoads.take(2).toList}...)"
